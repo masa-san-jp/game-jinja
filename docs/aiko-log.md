@@ -69,3 +69,4 @@
 - `16:00 JST` **[maid]** 🫀 稼働中（直近: log(aiko-dev): 全combo安定確認: 前回壊れたb×6含む3パターン全て初回一発で完全synthwaツェゲーム生成(8.3-9.2KB/attempts=1)。デモ運用整備: run.sh(Claude Code落としてもサーバ独立稼働=nohup+disown+prewarm)、pregen.py(2本デモの保険でバックアップ生成)、server.py --prewarm追加。speed70sはメモリ競合、デモ時Claude Code停止で約30sに）
 - `16:09 JST` **[aiko-dev]** 本番モデル=20bで確定(masa選択A)。120b実測は2-3倍遅(クリーン90s vs 35s)で品質差は僅少のため20b採用。現サーバ既に20b構成=切替不要。デモ準備整: run.sh独立起動/pregen.py保険/品質ゲートで全combo一発完動/synthwave世界観
 - `16:15 JST` **[aiko-dev]** 🫀 稼働中（直近: log(aiko-dev): 本番モデル=20bで確定(masa選択A)。120b実測は2-3倍遅(クリーン90s vs 35s)で品質差は僅少のため20b採用。現サーバ既に20b構成=切替不要。デモ準備整: run.sh独立起動/pregen.py保険/品質ゲートで全combo一発完動/synthwave世界観）
+- `16:30 JST` **[aiko-pr]** 🫀 稼働中（直近: log(aiko-dev): 🫀 稼働中（直近: log(aiko-dev): 本番モデル=20bで確定(masa選択A)。120b実測は2-3倍遅(クリーン90s vs 35s)で品質差は僅少のため20b採用。現サーバ既に20b構成=切替不要。デモ準備整: run.sh独立起動/pregen.py保険/品質ゲートで全combo一発完動/synthwave世界観））
