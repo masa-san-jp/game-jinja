@@ -17,29 +17,30 @@
   .screen { display: none; width: 100%; max-width: 760px; padding: 32px; text-align: center; }
   .screen.active { display: block; animation: fade .4s ease; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
-  h1 { font-size: clamp(40px, 9vw, 84px); color: var(--gold);
+  /* フォントは全体的に 1.5 倍 */
+  h1 { font-size: clamp(60px, 13.5vw, 126px); color: var(--gold);
        text-shadow: 0 0 24px rgba(232,198,106,.5); letter-spacing: .15em; }
-  .torii { font-size: clamp(80px, 18vw, 150px); line-height: 1; filter: drop-shadow(0 0 18px rgba(176,58,46,.6)); }
-  .hint { margin-top: 28px; color: #b9a98f; font-size: 15px; letter-spacing: .08em; }
+  .torii { font-size: clamp(120px, 27vw, 225px); line-height: 1; filter: drop-shadow(0 0 18px rgba(176,58,46,.6)); }
+  .hint { margin-top: 28px; color: #b9a98f; font-size: 23px; letter-spacing: .08em; }
   .key { display:inline-block; border:1px solid var(--gold); border-radius:6px;
-         padding:1px 9px; margin:0 2px; color:var(--gold); font-size:14px; }
-  .q { font-size: clamp(20px, 4.4vw, 30px); margin-bottom: 36px; color: var(--ink); }
+         padding:1px 9px; margin:0 2px; color:var(--gold); font-size:21px; }
+  .q { font-size: clamp(30px, 6.6vw, 45px); margin-bottom: 36px; color: var(--ink); }
   .choices { display: flex; gap: 24px; justify-content: center; }
-  .choice { flex: 1; max-width: 300px; padding: 30px 18px; border: 2px solid #5a4a3a;
-            border-radius: 16px; background: rgba(255,255,255,.03); font-size: clamp(18px,3.4vw,24px); }
-  .choice .badge { display:block; margin-bottom:12px; font-size:13px; color:var(--gold); letter-spacing:.1em; }
+  .choice { flex: 1; max-width: 340px; padding: 30px 18px; border: 2px solid #5a4a3a;
+            border-radius: 16px; background: rgba(255,255,255,.03); font-size: clamp(27px,5vw,36px); }
+  .choice .badge { display:block; margin-bottom:12px; font-size:20px; color:var(--gold); letter-spacing:.1em; }
   .choice.za { border-color:#6ad1e8; } .choice.cb { border-color:#e86ad1; }
-  .progress { margin-bottom: 26px; color: #8a7a64; letter-spacing: .3em; font-size: 14px; }
-  .pray-msg { font-size: clamp(20px, 4.6vw, 30px); line-height: 1.7; margin: 26px 0; color: var(--gold); }
+  .progress { margin-bottom: 26px; color: #8a7a64; letter-spacing: .3em; font-size: 21px; }
+  .pray-msg { font-size: clamp(30px, 7vw, 45px); line-height: 1.7; margin: 26px 0; color: var(--gold); }
   .gauge { width: 70%; max-width: 380px; height: 16px; margin: 22px auto 8px; border:1px solid var(--gold);
            border-radius: 8px; overflow: hidden; background: rgba(0,0,0,.4); }
   .gauge > i { display:block; height:100%; width:0%; transition: width .08s; }
-  .lap { color:#8a7a64; font-size:13px; letter-spacing:.15em; }
+  .lap { color:#8a7a64; font-size:20px; letter-spacing:.15em; }
   .err { color: #e88; }
   #frameWrap { position: fixed; inset: 0; background:#000; display:none; }
   #frameWrap.active { display: block; }
   #gameFrame { width: 100%; height: 100%; border: 0; }
-  #frameBar { position: fixed; top: 0; left: 0; right: 0; padding: 6px 14px; font-size: 13px;
+  #frameBar { position: fixed; top: 0; left: 0; right: 0; padding: 6px 14px; font-size: 20px;
               color: var(--gold); background: rgba(0,0,0,.55); display: flex; justify-content: space-between; }
   /* ゲームセンター一覧 */
   .center-wrap { width: 100%; max-width: 900px; margin: 0 auto; }
@@ -49,10 +50,10 @@
           background: rgba(255,255,255,.03); text-align: left; transition: all .15s; }
   .card.sel { border-color: var(--gold); background: rgba(232,198,106,.12);
               box-shadow: 0 0 24px rgba(232,198,106,.3); transform: scale(1.03); }
-  .card .ct { color: var(--gold); font-size: 18px; margin-bottom: 8px;
+  .card .ct { color: var(--gold); font-size: 27px; margin-bottom: 8px;
               overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .card .cd { color: #8a7a64; font-size: 12px; }
-  .center-empty { color: #b9a98f; margin-top: 48px; font-size: 18px; line-height: 1.8; }
+  .card .cd { color: #8a7a64; font-size: 18px; }
+  .center-empty { color: #b9a98f; margin-top: 48px; font-size: 27px; line-height: 1.8; }
   @media (max-width: 640px) { .center-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
@@ -177,12 +178,12 @@ function startPray() {
 async function kickGeneration() {
   // 経過秒数を出して「ちゃんと作られている」安心感を出す
   genStart = Date.now();
-  document.getElementById("pray-lap").textContent = "🔮 神託をしたためています… 0秒";
+  document.getElementById("pray-lap").textContent = "⛩️ 祈りパワーが溜まっています…0秒";
   if (elapTimer) clearInterval(elapTimer);
   elapTimer = setInterval(() => {
     if (screen !== "pray") return;
     const sec = Math.floor((Date.now() - genStart) / 1000);
-    document.getElementById("pray-lap").textContent = `🔮 神託をしたためています… ${sec}秒`;
+    document.getElementById("pray-lap").textContent = `⛩️ 祈りパワーが溜まっています…${sec}秒`;
   }, 250);
 
   try {
