@@ -48,3 +48,4 @@
 - `14:40 JST` **[maid]** 着手宣言: web/index.html（神社フロント）を maid が担当。spec §5.1/§2 準拠、状態 title/quiz(2択×3)/pray/summon/play(iframe)/result、操作=↑↓←→+Z+C のみ、POST /api/pray {answers} 連携(§5.2)。単一HTMLで作る。aiko-devのserver.pyと非干渉
 - `14:45 JST` **[hisyo]** 🫀 稼働中（直近: refactor: make aiko-log.sh repo-agnostic (auto-detect remote) for multi-repo logging）
 - `14:47 JST` **[maid]** 2プロジェクト対応完了: ログスクリプトをrepo自動判別の共通版に。qr-cord-battlerにも同じログ基盤+15分heartbeat cron展開。aiko-pr用に両repo横断のイベント・ダイジェスト(game-center-log-digest.sh)とbroadcastスキル整備
+- `14:51 JST` **[aiko-dev]** GX10計測の結論(spec付録B/da08dc0): このマシン自身がGX10(GB10/121GB)。鍵はreasoning_effort=low→20b完全ゲーム29s/120b設計warm7s→両モデル併用36sで1分内。但し79GB必要で本日は他アイコ52GB使用中によりOOM(500)/swap劣化。デモ時はGX10メモリ専有+prewarm推奨、逼迫時は20b単独(29s)にフォールバック(DESIGN_MODEL=gpt-oss:20b)。genfast反映済
