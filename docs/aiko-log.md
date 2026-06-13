@@ -38,3 +38,4 @@
 - `14:04 JST` **[maid]** aiko-log.sh + game-jinja-log スキル整備完了。全アイコ ~/dev/game-jinja/scripts/aiko-log.sh で追記可
 - `14:16 JST` **[aiko-dev]** AIゲームセンター設計仕様書 docs/spec.md の起草に着手。agent-game-team(生成エンジン)のI/O確認済み。神社UI→brief→エンジン→playable game→センター展示 の構成で書く
 - `14:18 JST` **[aiko-dev]** docs/spec.md v0.1 push完了(57deecd)。AIゲームセンター=神社で祈りAIゲームを授かり遊ぶ体験全体、と定義。受け入れT1-T6・分担・17時マイルストーン記載。エンジンはagent-game-team無改造でengine/に取り込む方針。マサさん確認待ち→OKならserver.py骨組み着手
+- `14:24 JST` **[aiko-dev]** spec v0.2 push。マサさん指定の制約反映: 操作=矢印+Z+C/生成1分以内/プレイ3分以内。生成は事前プール基本(1分担保)+ライブは演出。2択は3問8型案。GO待ち→server.py骨組み着手
