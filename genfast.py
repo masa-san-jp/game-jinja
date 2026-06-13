@@ -26,6 +26,9 @@ OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 DESIGN_MODEL = os.environ.get("DESIGN_MODEL", "gpt-oss:120b")
 BUILD_MODEL = os.environ.get("BUILD_MODEL", "gpt-oss:20b")
 KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "30m")
+# gpt-oss は reasoning モデル。effort=low で思考トークンを削り 1 分以内に収める(GX10実測:
+# 20b 完全なゲーム=29s, 120b 設計=warm約7s)。num_predict は思考+本文を賄える大きさが必要。
+REASONING_EFFORT = os.environ.get("REASONING_EFFORT", "low")
 
 # 全ゲームに必須の制約 (C1/C3)。brief に必ず注入する。
 CONSTRAINTS = (
@@ -63,6 +66,7 @@ def _chat(model, system, user, num_predict):
         ],
         "stream": False,
         "keep_alive": KEEP_ALIVE,
+        "reasoning_effort": REASONING_EFFORT,
         "options": {"num_predict": num_predict, "temperature": 0.7},
     }
     req = urllib.request.Request(
@@ -71,7 +75,17 @@ def _chat(model, system, user, num_predict):
         headers={"Content-Type": "application/json"},
     )
     with urllib.request.urlopen(req, timeout=600) as r:
+        # gpt-oss は content(本文) と thinking(推論) を返す。本文のみ使う。
         return json.load(r).get("message", {}).get("content", "").strip()
+
+
+def prewarm():
+    """両モデルを常駐させる(コールド読込をデモ前に済ませる)。"""
+    for m in (DESIGN_MODEL, BUILD_MODEL):
+        try:
+            _chat(m, "warmup", "ok", 8)
+        except Exception:
+            pass
 
 
 def _extract_html(text):
@@ -115,7 +129,7 @@ def build_brief(elements, prayer=""):
     return "\n".join(lines)
 
 
-def generate(brief, design_tokens=400, build_tokens=3500, do_fix=False):
+def generate(brief, design_tokens=1000, build_tokens=3500, do_fix=False):
     """ライブ生成。dict を返す: {title, html, spec, t_design, t_build, syntax, elapsed}."""
     t0 = time.time()
     t = time.time()
