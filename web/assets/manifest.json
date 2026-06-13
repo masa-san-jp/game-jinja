@@ -1,0 +1,85 @@
+{
+  "note": "事前生成アセット。games は /assets/<file> で参照可。object は黒背景=透過扱い(canvas 'lighter' 合成 or 黒キー)。",
+  "assets": [
+    {
+      "id": "bg_arcade",
+      "kind": "background",
+      "file": "assets/bg_arcade.png",
+      "w": 1024,
+      "h": 576,
+      "use": "汎用背景（スピード/アクション系）"
+    },
+    {
+      "id": "bg_shrine",
+      "kind": "background",
+      "file": "assets/bg_shrine.png",
+      "w": 1024,
+      "h": 576,
+      "use": "神社テーマ背景"
+    },
+    {
+      "id": "bg_space",
+      "kind": "background",
+      "file": "assets/bg_space.png",
+      "w": 1024,
+      "h": 576,
+      "use": "宇宙/シューティング背景"
+    },
+    {
+      "id": "bg_forest",
+      "kind": "background",
+      "file": "assets/bg_forest.png",
+      "w": 1024,
+      "h": 576,
+      "use": "自然/探索背景"
+    },
+    {
+      "id": "orb_player",
+      "kind": "object",
+      "file": "assets/orb_player.png",
+      "w": 512,
+      "h": 512,
+      "use": "プレイヤー/自機"
+    },
+    {
+      "id": "gem",
+      "kind": "object",
+      "file": "assets/gem.png",
+      "w": 512,
+      "h": 512,
+      "use": "取得アイテム/得点"
+    },
+    {
+      "id": "star",
+      "kind": "object",
+      "file": "assets/star.png",
+      "w": 512,
+      "h": 512,
+      "use": "取得アイテム/ボーナス"
+    },
+    {
+      "id": "explosion",
+      "kind": "object",
+      "file": "assets/explosion.png",
+      "w": 512,
+      "h": 512,
+      "use": "爆発/ヒット演出"
+    },
+    {
+      "id": "enemy_slime",
+      "kind": "object",
+      "file": "assets/enemy_slime.png",
+      "w": 512,
+      "h": 512,
+      "use": "敵/ターゲット"
+    },
+    {
+      "id": "coin",
+      "kind": "object",
+      "file": "assets/coin.png",
+      "w": 512,
+      "h": 512,
+      "use": "コイン/スコア"
+    }
+  ]
+}
