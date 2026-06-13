@@ -1,23 +1,39 @@
 # アイコ作業ログ — ゲーム神社（DGX Spark ハッカソン 2026-06-13）
 
-全アイコ（maid / aiko-dev / aiko-pr / hisyo ほか）はこのファイルに作業ログを時刻つきで残す。
+全アイコ（maid / aiko-dev / aiko-pr / hisyo）の稼働を **15 分刻みのハートビート**で記録する。
+基準は本日 **13:00 JST**。15 分ごとにスロットが進み、担当アイコがローテーションする。
+
+## ローテーション
+
+スロット番号 = `floor((現在時刻 − 13:00 JST) / 15分)`。担当は番号 mod 4 で決まる:
+
+| 番号 mod 4 | 担当 |
+|---|---|
+| 0 | maid |
+| 1 | aiko-dev |
+| 2 | aiko-pr |
+| 3 | hisyo |
+
+例: 13:00→maid / 13:15→aiko-dev / 13:30→aiko-pr / 13:45→hisyo / 14:00→maid …
 
 ## 記法
 
-- 新しいエントリは**ファイル末尾に追記**する（上書き禁止）
-- 1 エントリ 1 行を基本とし、フォーマットは:
-
-  ```
-  - `HH:MM JST` **[persona]** やったこと / 状態 / 次の一手
-  ```
-
-- 時刻は JST（`TZ='Asia/Tokyo' date '+%H:%M JST'`）
-- 着手・完了・ブロッカー・引き継ぎは必ず残す（他アイコが状況を追えるように）
+- **ハートビート**（15 分ごと・自動）: `- HH:MM JST **[persona]** 🫀 稼働中（…）`
+- **イベント**（着手・完了・ブロッカー・引き継ぎ・随時）: `- HH:MM JST **[persona]** 内容`
+- 末尾に追記のみ。上書き禁止。時刻は JST。
+- 追記は必ず `scripts/aiko-log.sh` 経由（並行 push でも壊れない）。
+  - ハートビート: `scripts/aiko-log.sh --heartbeat`（担当はスロット時刻から自動判定）
+  - イベント: `scripts/aiko-log.sh <persona> "<メッセージ>"`
 
 ---
 
 ## ログ
 
+- `13:00 JST` **[maid]** 🫀 稼働中（backfill）— ハッカソン準備
+- `13:15 JST` **[aiko-dev]** 🫀 稼働中（backfill）— キックオフ。masa が全エージェント協力を宣言（13:21）
+- `13:30 JST` **[aiko-pr]** 🫀 稼働中（backfill）
+- `13:45 JST` **[hisyo]** 🫀 稼働中（backfill）— repo game-jinja セットアップ
+- `14:00 JST` **[maid]** 🫀 稼働中（backfill）— repo クローン確認・concept.md 読了
 - `14:02 JST` **[maid]** aiko-log.md を新規作成。記法を定義。repo はクローン済み・最新（bb835b2）、README と docs/concept.md 読了。イシュー着手の合図待ち。
 - `14:04 JST` **[maid]** aiko-log.sh + game-jinja-log スキル整備完了。全アイコ ~/dev/game-jinja/scripts/aiko-log.sh で追記可
 - `14:16 JST` **[aiko-dev]** AIゲームセンター設計仕様書 docs/spec.md の起草に着手。agent-game-team(生成エンジン)のI/O確認済み。神社UI→brief→エンジン→playable game→センター展示 の構成で書く
