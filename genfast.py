@@ -38,6 +38,32 @@ CONSTRAINTS = (
     "単一 HTML・素の JavaScript・1 画面・外部ライブラリ禁止。"
 )
 
+# 見た目の世界観を統一（リッチに見せる安全策）。画像不要・canvas 描画で実現。
+VISUAL_STYLE = (
+    "見た目はネオン・ベクター(ワイヤーフレーム)調で統一する: "
+    "真っ黒な背景、発光する細い線と幾何形状、ctx.shadowBlur によるグロー、"
+    "シアン/マゼンタ/イエローのネオン配色、薄いグリッドやスキャンライン。"
+    "画像ファイルは使わず canvas 描画のみで表現する。"
+)
+
+# 2択3問(8通り)を典型ゲームのアーキタイプに対応させる。type_key = "<tempo>-<stance>-<goal>"。
+#   tempo: a=スピード重視 / b=じっくり    stance: a=攻め / b=避け    goal: a=一発勝負 / b=積み上げ
+ARCHETYPES = {
+    "a-a-a": ("Blitz Shooter", "高速シューティング。迫る敵を撃ち、制限時間内のスコアを競うタイムアタック。"),
+    "a-a-b": ("Combo Smasher", "高速アクション。連続で壊して途切れさせずコンボ/スコアを積み上げる。"),
+    "a-b-a": ("Dodge Rush", "高速回避ゲー。弾や障害を避け切り、生存タイムを競う一発勝負。"),
+    "a-b-b": ("Endless Runner", "エンドレス回避ラン。避け続けて距離/スコアをじわじわ積む。"),
+    "b-a-a": ("One-Shot Puzzle", "じっくり考える詰めパズル。最小手で的を全部倒す一手必殺。"),
+    "b-a-b": ("Block Breaker", "陣取り/ブロック消しパズル。盤面を攻略してスコアを積み上げる。"),
+    "b-b-a": ("Stealth Escape", "ステルス脱出。見つからず出口へ。1ミスでアウトの緊張系一発勝負。"),
+    "b-b-b": ("Survivor", "サバイバル管理。資源/HP をやりくりして生き延び、生存時間を積む。"),
+}
+
+
+def archetype_for(type_key):
+    """type_key -> (name, desc)。未知キーは安全なデフォルト。"""
+    return ARCHETYPES.get(type_key, ("Mini Arcade", "シンプルで短く遊べる1画面アーケードゲーム。"))
+
 DESIGN_SYS = (
     "あなたはゲームデザイナー。与えられた『遊びの気配』から、その場で小さく確実に遊べる"
     "1 画面ゲームの核を **短く** 設計する。長文禁止。"
@@ -117,14 +143,18 @@ def _check_js(html):
         return "skip"
 
 
-def build_brief(elements, prayer=""):
-    """2択の答え(=遊びの気配のラベル列)と任意の祈りから brief を組む。"""
+def build_brief(archetype, elements=None, prayer=""):
+    """アーキタイプ(name, desc)と遊びの気配から brief を組む。"""
+    name, desc = archetype
     lines = [
-        "次の『遊びの気配』を組み合わせた、小さく確実に遊べる 1 画面ゲームをその場で作る。",
-        "気配: " + "、".join(e for e in elements if e),
+        f"『{name}』というタイプの、小さく確実に遊べる 1 画面ゲームをその場で作る。",
+        "ゲーム性: " + desc,
     ]
+    if elements:
+        lines.append("気配: " + "、".join(e for e in elements if e))
     if prayer:
         lines.append("祈り(テーマ): " + prayer)
+    lines.append("見た目: " + VISUAL_STYLE)
     lines.append("制約: " + CONSTRAINTS)
     return "\n".join(lines)
 
@@ -165,7 +195,7 @@ def generate(brief, design_tokens=1000, build_tokens=3500, do_fix=False):
 
 if __name__ == "__main__":
     import sys
-    sample = build_brief(["スピード重視", "攻める", "一発勝負(タイムアタック)"], "")
+    sample = build_brief(archetype_for("a-a-a"))
     b = sys.argv[1] if len(sys.argv) > 1 else sample
     r = generate(b)
     print(f"title={r['title']}  design={r['t_design']}s build={r['t_build']}s "

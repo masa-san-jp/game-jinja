@@ -95,7 +95,8 @@ def _save_game(key, html, spec, title):
 
 def _run_job(job_id, answers, prayer):
     key = type_key(answers)
-    brief = genfast.build_brief(answers_to_elements(answers), prayer)
+    archetype = genfast.archetype_for(key)
+    brief = genfast.build_brief(archetype, answers_to_elements(answers), prayer)
     t0 = time.time()
     try:
         result = genfast.generate(brief)
