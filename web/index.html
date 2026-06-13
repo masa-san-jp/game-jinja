@@ -99,7 +99,7 @@
 </div>
 
 <div id="frameWrap">
-  <div id="frameBar"><span id="frameTitle"></span><span><span class="key">C</span> 戻る</span></div>
+  <div id="frameBar"><span id="frameTitle"></span><span><span class="key">Z</span>+<span class="key">C</span> 中断してタイトルへ</span></div>
   <iframe id="gameFrame" title="game"></iframe>
 </div>
 
@@ -130,6 +130,7 @@ let pending = null;    // 完了したゲーム {game_id, title}
 let centerGames = [];
 let centerSel = 0;
 let playOrigin = "title";
+const heldKeys = new Set();   // Z+C 同時押し中断検知用（#8）
 
 function show(name) {
   screen = name;
@@ -238,7 +239,35 @@ function playGame(gameId, title, origin) {
   const frame = document.getElementById("gameFrame");
   frame.src = "/games/" + gameId + "/index.html";
   document.getElementById("frameWrap").classList.add("active");
+  heldKeys.clear();
+  // 同一オリジンのゲームなので、iframe 内のキーも親から監視できる（#8: プレイ中の Z+C 中断）
+  frame.onload = () => {
+    try {
+      const w = frame.contentWindow;
+      w.addEventListener("keydown", abortKeyDown);
+      w.addEventListener("keyup", abortKeyUp);
+      w.focus();
+    } catch (e) { /* 万一クロスオリジンでも親側の監視は効く */ }
+  };
   setTimeout(() => frame.focus(), 100);
+}
+
+// Z と C の同時押しでプレイを中断しタイトルへ（全ゲーム共通・#8）
+function abortKeyDown(e) {
+  if (!document.getElementById("frameWrap").classList.contains("active")) return;
+  heldKeys.add(e.key);
+  const z = heldKeys.has("z") || heldKeys.has("Z");
+  const c = heldKeys.has("c") || heldKeys.has("C");
+  if (z && c) abortToTitle();
+}
+function abortKeyUp(e) { heldKeys.delete(e.key); }
+
+function abortToTitle() {
+  if (poll) clearInterval(poll);
+  heldKeys.clear();
+  document.getElementById("gameFrame").src = "about:blank";
+  document.getElementById("frameWrap").classList.remove("active");
+  show("title");
 }
 
 function backFromGame() {
@@ -338,6 +367,10 @@ document.addEventListener("keydown", (e) => {
     } else if (k === "c" || k === "C") show("title");
   }
 });
+
+// 親フォーカス時も Z+C 中断を拾う（#8）
+window.addEventListener("keydown", abortKeyDown);
+window.addEventListener("keyup", abortKeyUp);
 
 loadQuestions();
 </script>
