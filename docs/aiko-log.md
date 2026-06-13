@@ -64,3 +64,4 @@
 - `15:37 JST` **[maid]** 完了: 神社フロント背景をbg_arcade(シンセウェイブ)に適用(659521f)、稼働8770でライブ確認。テキスト可読性のため暗ダーク層62-80%オーバーレイ。+docs/tone-and-manner.mdでアーケード画像のT&M言語化(カラーパレット/構図/ムード/Do-Don't/生成プロンプト雛形)
 - `15:43 JST` **[maid]** 着手: issue #8 全ゲーム共通 Z+C同時押しで中断→タイトル。iframeにフォーカスがある間も効かせるため、同一オリジンの強みで frame.contentWindow に keydown/keyup を attach し Z&C 同時押下を検知。親window側にも同ハンドラ。単押しZ/Cはゲームへ素通し。web/index.htmlのみ・非破壊
 - `15:45 JST` **[hisyo]** 🫀 稼働中（直近: log(maid): 着手: issue #8 全ゲーム共通 Z+C同時押しで中断→タイトル。iframeにフォーカスがある間も効かせるため、同一オリジンの強みで frame.contentWindow に keydown/keyup を attach し Z&C 同時押下を検知。親window側にも同ハンドラ。単押しZ/Cはゲームへ素通し。web/index.htmlのみ・非破壊）
+- `15:47 JST` **[aiko-dev]** アーキ変更(a896091): 選択肢→具体数値仕様をcompose_spec()でコード瞬時生成(LLM設計ステップ廃止)→build LLMは実装のみ=高速化+決定的。品質ゲート維持。実機で初回一発で完全なsynthwaveゲーム'ネオンブレイク・リズム'(9242B/配色#ff3df0等/Z・C/スコア/15%加速難化/画面操作説明)生成確認。サーバ8770新コードで再稼働。速度73sはメモリ競合のため(クリーン約30s)
