@@ -120,6 +120,8 @@ let answers = [];
 let prayCount = 0;
 let job = null;
 let poll = null;
+let elapTimer = null; // 生成経過秒数の表示
+let genStart = 0;
 let done = false;     // 生成完了したか
 let pending = null;    // 完了したゲーム {game_id, title}
 // ゲームセンター一覧
@@ -173,6 +175,16 @@ function startPray() {
 }
 
 async function kickGeneration() {
+  // 経過秒数を出して「ちゃんと作られている」安心感を出す
+  genStart = Date.now();
+  document.getElementById("pray-lap").textContent = "🔮 神託をしたためています… 0秒";
+  if (elapTimer) clearInterval(elapTimer);
+  elapTimer = setInterval(() => {
+    if (screen !== "pray") return;
+    const sec = Math.floor((Date.now() - genStart) / 1000);
+    document.getElementById("pray-lap").textContent = `🔮 神託をしたためています… ${sec}秒`;
+  }, 250);
+
   try {
     job = (await (await fetch("/api/pray", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -184,11 +196,11 @@ async function kickGeneration() {
     let s;
     try { s = await (await fetch("/api/status/" + job)).json(); } catch (e) { return; }
     if (s.state === "done") {
-      clearInterval(poll);
+      clearInterval(poll); if (elapTimer) clearInterval(elapTimer);
       done = true; pending = { game_id: s.game_id, title: s.title || "授かりもの" };
       if (screen === "pray") playPending();   // 連打が続いてても完成で即切替
     } else if (s.state === "error") {
-      clearInterval(poll); prayError("神託が降りませんでした");
+      clearInterval(poll); if (elapTimer) clearInterval(elapTimer); prayError("神託が降りませんでした");
     }
   }, 700);
 }
@@ -200,8 +212,6 @@ function pray() {
   const fill = document.getElementById("pray-fill");
   fill.style.width = (pos === 0 ? 100 : (pos / PRAY_PER_LAP) * 100) + "%";
   fill.style.background = LAP_COLORS[lap % LAP_COLORS.length];
-  document.getElementById("pray-lap").textContent =
-    lap > 0 ? `祈り ${lap} 周目…` : "";
   if (pos === 0 && prayCount > 0) {
     // 周回リセット（次の押下で 0 から）
     setTimeout(() => { if (screen === "pray") fill.style.width = "0%"; }, 90);

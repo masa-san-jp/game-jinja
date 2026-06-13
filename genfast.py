@@ -46,37 +46,41 @@ VISUAL_STYLE = (
     "画像ファイルは使わず canvas 描画のみで表現する。"
 )
 
-# 2択3問(8通り)を典型ゲームのアーキタイプに対応させる。type_key = "<tempo>-<stance>-<goal>"。
-#   tempo: a=スピード重視 / b=じっくり    stance: a=攻め / b=避け    goal: a=一発勝負 / b=積み上げ
-ARCHETYPES = {
-    "a-a-a": ("Blitz Shooter", "高速シューティング。迫る敵を撃ち、制限時間内のスコアを競うタイムアタック。"),
-    "a-a-b": ("Combo Smasher", "高速アクション。連続で壊して途切れさせずコンボ/スコアを積み上げる。"),
-    "a-b-a": ("Dodge Rush", "高速回避ゲー。弾や障害を避け切り、生存タイムを競う一発勝負。"),
-    "a-b-b": ("Endless Runner", "エンドレス回避ラン。避け続けて距離/スコアをじわじわ積む。"),
-    "b-a-a": ("One-Shot Puzzle", "じっくり考える詰めパズル。最小手で的を全部倒す一手必殺。"),
-    "b-a-b": ("Block Breaker", "陣取り/ブロック消しパズル。盤面を攻略してスコアを積み上げる。"),
-    "b-b-a": ("Stealth Escape", "ステルス脱出。見つからず出口へ。1ミスでアウトの緊張系一発勝負。"),
-    "b-b-b": ("Survivor", "サバイバル管理。資源/HP をやりくりして生き延び、生存時間を積む。"),
-}
+# 面白さの条件（最重要）。退屈なゲームを防ぐため設計に必ず効かせる。
+FUN_PRINCIPLES = (
+    "【面白さの条件・必ず満たす】"
+    "(1) 説明不要で、見た瞬間に遊び方が分かる。"
+    "(2) 後ろから見ているだけでも楽しい（動きが派手・状況が一目で分かる・派手な演出）。"
+    "(3) 3 分以内に必ず決着する。"
+    "(4) 次のイディオムを最低 1 つ、強く効かせる— "
+    "タイムアタック / スコアアタック / デストラクション(壊す快感) / スピード(加速) / ペナルティ(制約・蓄積)。"
+    "(5) 『緊張の蓄積と解放』のループを作る。テトリスの本質＝積み上がること自体がペナルティ(蓄積)で、"
+    "列が消える瞬間に緊張が解放される。これと同型の、溜まる→弾ける リズムを必ず入れる。"
+    "(6) 時間とともにジワジワ難しくする（加速・増殖・制約強化）。単調な作業ゲーにしない。"
+)
 
-
-def archetype_for(type_key):
-    """type_key -> (name, desc)。未知キーは安全なデフォルト。"""
-    return ARCHETYPES.get(type_key, ("Mini Arcade", "シンプルで短く遊べる1画面アーケードゲーム。"))
+# ゲーム仕様は質問の答え(=各軸の選択)を合成して決まる。軸の定義は server.py の QUESTIONS 側。
+# build_brief は選ばれた仕様フラグメント(各軸 1 行)を受け取って brief を組む。
 
 DESIGN_SYS = (
-    "あなたはゲームデザイナー。与えられた『遊びの気配』から、その場で小さく確実に遊べる"
-    "1 画面ゲームの核を **短く** 設計する。長文禁止。"
+    "あなたは敏腕ゲームデザイナー。与えられたアーキタイプから、その場で小さく確実に遊べて"
+    "**ちゃんと面白い** 1 画面ゲームの核を **短く** 設計する。長文禁止。"
+    "退屈な作業ゲーは絶対に作らない。緊張の蓄積と解放のリズムを核に据える。"
     "出力フォーマット（Markdown・各 1〜2 行）:\n"
     "## title  … 短い英語のゲーム名\n"
-    "## core   … 何をするゲームか・面白さの核\n"
-    "## rules  … 勝敗/スコア/終了条件\n"
+    "## core   … 何をするゲームか・面白さの核（どのイディオムで、何が溜まり何が弾けるか）\n"
+    "## tension … 緊張がどう蓄積し、どの瞬間に解放されるか\n"
+    "## rules  … 勝敗/スコア/終了条件・どう難化するか\n"
     "## controls … 矢印/Z/C に何を割り当てるか\n"
     "前置き・説明・コードは書かない。"
 )
 
 BUILD_SYS = (
-    "あなたはゲームプログラマー。game-spec を満たす、単一ファイルで動く HTML5 ゲームを書く。"
+    "あなたは腕利きゲームプログラマー。game-spec を満たす、単一ファイルで動く"
+    "**手触りの良い** HTML5 ゲームを書く。"
+    "壊れる・消える・加速する瞬間に派手な視覚フィードバック（パーティクル/画面シェイク/フラッシュ/色変化）"
+    "を必ず入れ、後ろから見ても楽しくする。スコアと残り時間/残機を画面に大きく出す。"
+    "時間経過で必ず難しくする（加速・増殖）。説明文なしで遊べるUIにする。"
     "出力は **完全な index.html のみ**（<!DOCTYPE html> から </html> まで）。"
     "canvas + 素の JavaScript、外部ライブラリ禁止、1 ファイル完結。"
     "コードブロックや説明で囲まない、HTML だけを出力する。"
@@ -143,17 +147,14 @@ def _check_js(html):
         return "skip"
 
 
-def build_brief(archetype, elements=None, prayer=""):
-    """アーキタイプ(name, desc)と遊びの気配から brief を組む。"""
-    name, desc = archetype
-    lines = [
-        f"『{name}』というタイプの、小さく確実に遊べる 1 画面ゲームをその場で作る。",
-        "ゲーム性: " + desc,
-    ]
-    if elements:
-        lines.append("気配: " + "、".join(e for e in elements if e))
+def build_brief(spec_axes, prayer=""):
+    """選ばれた仕様フラグメント(各軸1行)を合成して brief を組む。
+    spec_axes: ["ねらい: ...", "動き: ...", ...] の形の文字列リスト。"""
+    lines = ["次の指定に従って、小さく確実に遊べて『ちゃんと面白い』1 画面ゲームをその場で作る。"]
+    lines += [" ・" + a for a in spec_axes if a]
     if prayer:
         lines.append("祈り(テーマ): " + prayer)
+    lines.append(FUN_PRINCIPLES)
     lines.append("見た目: " + VISUAL_STYLE)
     lines.append("制約: " + CONSTRAINTS)
     return "\n".join(lines)
@@ -195,7 +196,14 @@ def generate(brief, design_tokens=1000, build_tokens=3500, do_fix=False):
 
 if __name__ == "__main__":
     import sys
-    sample = build_brief(archetype_for("a-a-a"))
+    sample = build_brief([
+        "ねらい: 高得点を狙うスコアアタック",
+        "動き: 攻めて壊すデストラクション",
+        "テンポ: 高速でめまぐるしい",
+        "緊張の源: 敵が増え続ける(蓄積)",
+        "快感の瞬間: 一掃・連鎖でまとめてスカッと",
+        "難化: どんどん加速していく",
+    ])
     b = sys.argv[1] if len(sys.argv) > 1 else sample
     r = generate(b)
     print(f"title={r['title']}  design={r['t_design']}s build={r['t_build']}s "

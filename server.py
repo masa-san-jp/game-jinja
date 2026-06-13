@@ -35,11 +35,27 @@ GAMES = BASE / "games"
 PORT = int(os.environ.get("PORT", "8770"))
 GEN_BUDGET_S = float(os.environ.get("GEN_BUDGET_S", "55"))
 
-# 2択質問 (spec §3)。answer は "a"(左) / "b"(右)。
+# 2択質問。各問が「ゲーム仕様の1軸」を決め、答えに従って仕様が定まる(spec §3)。
+# answer は "a"(左) / "b"(右)。各選択肢は label(表示) と spec(brief へ注入する仕様片) を持つ。
 QUESTIONS = [
-    {"id": "tempo", "a": "スピード重視", "b": "じっくり考える"},
-    {"id": "stance", "a": "攻める（破壊・得点）", "b": "避ける（生存）"},
-    {"id": "goal", "a": "一発勝負（タイムアタック）", "b": "積み上げ（コンボ・スコア）"},
+    {"id": "aim",
+     "a": {"label": "高得点を狙う", "spec": "ねらい: 高得点を狙うスコアアタック"},
+     "b": {"label": "速さを競う", "spec": "ねらい: クリア速度を競うタイムアタック"}},
+    {"id": "move",
+     "a": {"label": "攻めて壊す", "spec": "動き: 攻めて壊すデストラクション(壊す快感が主役)"},
+     "b": {"label": "避けて生き残る", "spec": "動き: 避けて生き残るサバイバル"}},
+    {"id": "tempo",
+     "a": {"label": "高速でめまぐるしい", "spec": "テンポ: 高速でめまぐるしい反射神経系"},
+     "b": {"label": "一手ずつ考える", "spec": "テンポ: 一手ずつ考える思考系"}},
+    {"id": "tension",
+     "a": {"label": "敵がどんどん増える", "spec": "緊張の源: 敵やブロックが増え続ける蓄積プレッシャー"},
+     "b": {"label": "時間・手数に追われる", "spec": "緊張の源: 制限時間や手数の制約に追われるペナルティ"}},
+    {"id": "release",
+     "a": {"label": "一掃してスカッと", "spec": "快感の瞬間: 一掃・連鎖でまとめて片づく解放感"},
+     "b": {"label": "ギリギリ回避の安堵", "spec": "快感の瞬間: ギリギリで切り抜ける安堵"}},
+    {"id": "ramp",
+     "a": {"label": "どんどん加速する", "spec": "難化: 時間とともにどんどん加速していく"},
+     "b": {"label": "どんどん増える", "spec": "難化: 時間とともにどんどん物量が増えていく"}},
 ]
 
 # job_id -> {state, game_id?, title?, elapsed?, error?}
@@ -64,21 +80,31 @@ def type_key(answers):
     return "-".join(norm)
 
 
-def answers_to_elements(answers):
-    """答え列 -> 気配ラベル列（brief 用）。"""
+def answers_to_specs(answers):
+    """答え列 -> 仕様フラグメント列（brief 用）。各問の選択肢の spec を集める。"""
     out = []
     for q, ans in zip(QUESTIONS, answers):
-        out.append(q["a"] if str(ans).lower() == "a" else q["b"])
+        opt = q["a"] if str(ans).lower() == "a" else q["b"]
+        out.append(opt["spec"])
     return out
 
 
+def public_questions():
+    """フロント表示用に label だけ返す。"""
+    return [{"id": q["id"], "a": q["a"]["label"], "b": q["b"]["label"]} for q in QUESTIONS]
+
+
 def _fallback_game(key):
-    """同型の既存ゲームを 1 本返す（§6.4）。無ければ None。"""
+    """同型の既存ゲームを優先で 1 本返す。無ければ直近の任意ゲーム（§6.4・デモを止めない）。"""
     type_dir = GAMES / key
-    if not type_dir.is_dir():
-        return None
-    cands = sorted([d for d in type_dir.iterdir() if (d / "index.html").exists()], reverse=True)
-    return cands[0].name if cands else None
+    if type_dir.is_dir():
+        cands = sorted([d for d in type_dir.iterdir() if (d / "index.html").exists()], reverse=True)
+        if cands:
+            return f"{key}/{cands[0].name}"
+    # フォールバック: 全ゲームから最新
+    allg = sorted([p.parent for p in GAMES.glob("*/*/index.html")],
+                  key=lambda d: d.name, reverse=True)
+    return f"{allg[0].parent.name}/{allg[0].name}" if allg else None
 
 
 def _save_game(key, html, spec, title):
@@ -95,8 +121,7 @@ def _save_game(key, html, spec, title):
 
 def _run_job(job_id, answers, prayer):
     key = type_key(answers)
-    archetype = genfast.archetype_for(key)
-    brief = genfast.build_brief(archetype, answers_to_elements(answers), prayer)
+    brief = genfast.build_brief(answers_to_specs(answers), prayer)
     t0 = time.time()
     try:
         result = genfast.generate(brief)
@@ -136,7 +161,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/" or path == "/index.html":
             return self._serve_file(WEB / "index.html", "text/html")
         if path == "/api/questions":
-            return self._send(200, {"questions": QUESTIONS})
+            return self._send(200, {"questions": public_questions()})
         if path == "/api/games":
             return self._send(200, {"games": self._list_games()})
         if path.startswith("/api/status/"):
