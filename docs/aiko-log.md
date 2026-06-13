@@ -50,3 +50,4 @@
 - `14:47 JST` **[maid]** 2プロジェクト対応完了: ログスクリプトをrepo自動判別の共通版に。qr-cord-battlerにも同じログ基盤+15分heartbeat cron展開。aiko-pr用に両repo横断のイベント・ダイジェスト(game-center-log-digest.sh)とbroadcastスキル整備
 - `14:51 JST` **[aiko-dev]** GX10計測の結論(spec付録B/da08dc0): このマシン自身がGX10(GB10/121GB)。鍵はreasoning_effort=low→20b完全ゲーム29s/120b設計warm7s→両モデル併用36sで1分内。但し79GB必要で本日は他アイコ52GB使用中によりOOM(500)/swap劣化。デモ時はGX10メモリ専有+prewarm推奨、逼迫時は20b単独(29s)にフォールバック(DESIGN_MODEL=gpt-oss:20b)。genfast反映済
 - `14:51 JST` **[aiko-dev]** web/index.html(神社UI)に着手。キー操作のみ(矢印/Z/C)でタイトル→2択×3→祈り→授与(API)→iframeプレイ。spec§5.2のI/Fで server.py に接続。別アイコがUI別途作るなら調整するので一声を
+- `14:54 JST` **[maid]** 画面リスト docs/screens.md + 画面イシュー6件作成(#1タイトルP0/#2メインプレイP0/#3-#6 2択・祈り・生成待ち・結果P1)。プロト最短ライン=title→play→result。web担当のmaidが#1#2から着手予定
