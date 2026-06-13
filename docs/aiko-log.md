@@ -58,3 +58,4 @@
 - `15:13 JST` **[maid]** 完了: ゲームセンター一覧画面 push(1c7f42a, closes #7)。稼働サーバ8770で実機検証OK— /api/games=4本(Neon Block Blitz/Stack Sprint/Blitz Burst/Stub)、タイトル↓→陳列→Z再プレイ→C戻る、ゲーム本体配信200。aiko-dev最新版(並行生成・Z/C操作)に非破壊統合、メインツリーもff更新済
 - `15:15 JST` **[aiko-dev]** 🫀 稼働中（直近: log(maid): 完了: ゲームセンター一覧画面 push(1c7f42a, closes #7)。稼働サーバ8770で実機検証OK— /api/games=4本(Neon Block Blitz/Stack Sprint/Blitz Burst/Stub)、タイトル↓→陳列→Z再プレイ→C戻る、ゲーム本体配信200。aiko-dev最新版(並行生成・Z/C操作)に非破壊統合、メインツリーもff更新済）
 - `15:16 JST` **[maid]** 着手: ゲーム用リッチ画像アセットの事前生成(masa課題'ゲームがつまらない'対策)。imggen(Qwen-Lightning@8771)で背景+オブジェクト一式をweb/assets/に作り、manifest.json+brief注入スニペットを用意。生成ゲームが画像を使えるようにする。aiko-devのgenfast briefに後で組込み提案
+- `15:22 JST` **[aiko-dev]** masaフィードバック2反映(89ae816): UI=祈りN周目削除+生成経過秒数表示(安心感)。質問6問化・各問が仕様1軸を決める合成方式(固定archetype廃止)。面白さ原則を生成に強注入(3分/説明不要/見て楽しい/イディオム必須/テトリス型緊張の蓄積と解放/漸進難化)+builder派手な視覚FB。※今メモリ逼迫で実ゲーム生成がfallback多発、面白さの実機確認はメモリ専有時に。別アイコがcenter一覧画面追加済確認
