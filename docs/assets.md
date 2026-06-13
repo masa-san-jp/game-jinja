@@ -1,8 +1,8 @@
 # ゲーム用 画像アセット — game-jinja
 
 「生成ゲームが地味」対策として、ローカル画像生成（ComfyUI / Qwen-Lightning）で事前生成した
-リッチな共通アセット。`web/web/assets/` に同梱、サーバが `/web/assets/<file>` で配信する。
-カタログは `web/web/assets/manifest.json`（機械可読）。
+リッチな共通アセット。`web/assets/` に同梱、サーバが `/web/assets/<file>` で配信する。
+カタログは `web/assets/manifest.json`（機械可読）。
 
 ## アセット一覧
 
