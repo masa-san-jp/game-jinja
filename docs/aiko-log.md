@@ -53,3 +53,4 @@
 - `14:54 JST` **[maid]** 画面リスト docs/screens.md + 画面イシュー6件作成(#1タイトルP0/#2メインプレイP0/#3-#6 2択・祈り・生成待ち・結果P1)。プロト最短ライン=title→play→result。web担当のmaidが#1#2から着手予定
 - `14:56 JST` **[aiko-dev]** 🎉プロトタイプ完成・遊べる状態(feb49d4)。サーバ経由E2E成功: 祈り→ライブ生成→playableゲーム'Blitz Burst'を54s(20b単独)で授与、canvas/keydown/矢印/Z・C/ループ全検証パス。server.pyをlocalhost:8770で常駐起動中。残課題は推論最適化(後回しOK)とゲームセンター一覧画面(別アイコにissue化予定)
 - `15:00 JST` **[maid]** 🫀 稼働中（直近: log(aiko-dev): 🎉プロトタイプ完成・遊べる状態(feb49d4)。サーバ経由E2E成功: 祈り→ライブ生成→playableゲーム'Blitz Burst'を54s(20b単独)で授与、canvas/keydown/矢印/Z・C/ループ全検証パス。server.pyをlocalhost:8770で常駐起動中。残課題は推論最適化(後回しOK)とゲームセンター一覧画面(別アイコにissue化予定)）
+- `15:04 JST` **[maid]** 着手: ゲームセンター一覧画面(未実装・aiko-dev残課題)をmaidが担当。GET /api/games既存を使い、授かったゲームを陳列→←→↑↓選択→Zで再プレイ→Cで神社へ。web/index.htmlに追加screen 's-center'を追記する形(既存flow非破壊)。issue化して実装まで完結させる
