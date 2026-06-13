@@ -51,17 +51,16 @@ VISUAL_STYLE = (
     "・やらない: パステルで淡く・日中の自然光・写実フォト調。"
 )
 
-# 面白さの条件（最重要）。退屈なゲームを防ぐため設計に必ず効かせる。
+# 面白さの条件（最重要）。退屈なゲームを防ぐため実装に必ず効かせる。
 FUN_PRINCIPLES = (
     "【面白さの条件・必ず満たす】"
-    "(1) 説明不要で、見た瞬間に遊び方が分かる。"
+    "(1) 見た瞬間に遊び方が分かる。画面に操作説明テキスト(例『←→ 移動  Z 撃つ  C ダッシュ』)を出してよい。"
     "(2) 後ろから見ているだけでも楽しい（動きが派手・状況が一目で分かる・派手な演出）。"
     "(3) 3 分以内に必ず決着する。"
-    "(4) 次のイディオムを最低 1 つ、強く効かせる— "
-    "タイムアタック / スコアアタック / デストラクション(壊す快感) / スピード(加速) / ペナルティ(制約・蓄積)。"
+    "(4) 指定のイディオムを強く効かせる。"
     "(5) 『緊張の蓄積と解放』のループを作る。テトリスの本質＝積み上がること自体がペナルティ(蓄積)で、"
-    "列が消える瞬間に緊張が解放される。これと同型の、溜まる→弾ける リズムを必ず入れる。"
-    "(6) 時間とともにジワジワ難しくする（加速・増殖・制約強化）。単調な作業ゲーにしない。"
+    "消える瞬間に緊張が解放される。これと同型の、溜まる→弾ける リズムを必ず入れる。"
+    "(6) 時間とともにジワジワ難しくする（指定の難化ルールに従う）。単調な作業ゲーにしない。"
 )
 
 # ゲーム仕様は質問の答え(=各軸の選択)を合成して決まる。軸の定義は server.py の QUESTIONS 側。
@@ -120,12 +119,11 @@ def _chat(model, system, user, num_predict):
 
 
 def prewarm():
-    """両モデルを常駐させる(コールド読込をデモ前に済ませる)。"""
-    for m in (DESIGN_MODEL, BUILD_MODEL):
-        try:
-            _chat(m, "warmup", "ok", 8)
-        except Exception:
-            pass
+    """build モデルを常駐させる(コールド読込をデモ前に済ませる)。"""
+    try:
+        _chat(BUILD_MODEL, "warmup", "ok", 8)
+    except Exception:
+        pass
 
 
 def _extract_html(text):
@@ -174,48 +172,40 @@ def _check_js(html):
         return "skip"
 
 
-def build_brief(spec_axes, prayer=""):
-    """選ばれた仕様フラグメント(各軸1行)を合成して brief を組む。
-    spec_axes: ["ねらい: ...", "動き: ...", ...] の形の文字列リスト。"""
-    lines = ["次の指定に従って、小さく確実に遊べて『ちゃんと面白い』1 画面ゲームをその場で作る。"]
-    lines += [" ・" + a for a in spec_axes if a]
-    if prayer:
-        lines.append("祈り(テーマ): " + prayer)
-    lines.append(FUN_PRINCIPLES)
-    lines.append("見た目: " + VISUAL_STYLE)
-    lines.append("制約: " + CONSTRAINTS)
-    return "\n".join(lines)
+def _extract_title_html(html, default="Game"):
+    m = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
+    return m.group(1).strip()[:40] if m and m.group(1).strip() else default
 
 
-def generate(brief, design_tokens=1000, build_tokens=4000, max_build=3):
-    """ライブ生成。品質ゲートに通るまで build を最大 max_build 回まで作り直す。
-    dict を返す: {title, html, spec, t_design, t_build, syntax, issues, attempts, elapsed}."""
+def _build_prompt(spec):
+    """決定的な数値仕様(spec) + 面白さ/見た目/制約 を 1 本の build 指示にする。"""
+    return (f"次の仕様の通りにゲームを実装する。数値は仕様の値を厳密に使う。\n{spec}\n\n"
+            f"{FUN_PRINCIPLES}\n見た目: {VISUAL_STYLE}\n制約: {CONSTRAINTS}\n"
+            "上記を満たす **完全に動く** index.html を出力。<title> にゲーム名を入れる。")
+
+
+def generate(spec, build_tokens=4000, max_build=3):
+    """決定的な数値仕様(spec)から、その場で実装だけ行う(設計 LLM ステップ無し=高速)。
+    品質ゲートに通るまで build を最大 max_build 回作り直す。
+    dict を返す: {title, html, spec, t_build, syntax, issues, attempts, elapsed}."""
     t0 = time.time()
-    t = time.time()
-    spec = _chat(DESIGN_MODEL, DESIGN_SYS, brief + "\n短い game-spec を出力。", design_tokens)
-    t_design = time.time() - t
-
-    user = f"game-spec:\n{spec}\n\n上記を満たす **完全に動く** index.html を出力。途中で省略しない。"
+    user = _build_prompt(spec)
     html, issues, attempts = "", ["init"], 0
-    t = time.time()
     while issues and attempts < max_build:
         attempts += 1
         html = _extract_html(_chat(BUILD_MODEL, BUILD_SYS, user, build_tokens))
         issues = quality_issues(html)
         if issues:
-            # 何が欠けているかを具体的に指摘して作り直させる
-            user = (f"game-spec:\n{spec}\n\n前回の出力に問題: {', '.join(issues)}。"
+            user = (_build_prompt(spec) +
+                    f"\n\n前回の出力の問題: {', '.join(issues)}。"
                     "操作(矢印/Z/C)を addEventListener('keydown') で実装し、"
-                    "requestAnimationFrame のゲームループ、スコア/結果画面、難化を必ず入れ、"
+                    "requestAnimationFrame のループ・スコア・結果画面・難化を必ず入れ、"
                     "<!DOCTYPE html> から </html> まで省略せず完全に出力する。")
-    t_build = time.time() - t
-
     return {
-        "title": _extract_title(spec),
+        "title": _extract_title_html(html),
         "html": html,
         "spec": spec,
-        "t_design": round(t_design, 1),
-        "t_build": round(t_build, 1),
+        "t_build": round(time.time() - t0, 1),
         "syntax": _check_js(html),
         "issues": issues,
         "attempts": attempts,
@@ -225,15 +215,14 @@ def generate(brief, design_tokens=1000, build_tokens=4000, max_build=3):
 
 if __name__ == "__main__":
     import sys
-    sample = build_brief([
-        "ねらい: 高得点を狙うスコアアタック",
-        "動き: 攻めて壊すデストラクション",
-        "テンポ: 高速でめまぐるしい",
-        "緊張の源: 敵が増え続ける(蓄積)",
-        "快感の瞬間: 一掃・連鎖でまとめてスカッと",
-        "難化: どんどん加速していく",
-    ])
+    sample = (
+        "## genre: 高速シューティング(スコアアタック×デストラクション)\n"
+        "## 操作: ←→ 移動 / Z 撃つ / C ダッシュ(短い無敵)\n"
+        "## 数値: プレイヤー速度7px、敵出現間隔0.6秒、10秒ごとに速度+15%、"
+        "撃破+10点、被弾で1ミス(残機3)、制限時間60秒\n"
+        "## 緊張: 敵が増え続ける(蓄積)→まとめ撃ちで一掃(解放)\n"
+    )
     b = sys.argv[1] if len(sys.argv) > 1 else sample
     r = generate(b)
-    print(f"title={r['title']}  design={r['t_design']}s build={r['t_build']}s "
-          f"total={r['elapsed']}s syntax={r['syntax']} bytes={len(r['html'])}")
+    print(f"title={r['title']} build={r['t_build']}s attempts={r['attempts']} "
+          f"issues={r['issues']} syntax={r['syntax']} bytes={len(r['html'])}")
