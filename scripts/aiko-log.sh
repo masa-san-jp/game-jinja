@@ -3,22 +3,34 @@
 # Safe for concurrent use by multiple Aiko agents: rebase + retry on push race.
 #
 # Usage:
-#   scripts/aiko-log.sh <persona> <message...>
+#   scripts/aiko-log.sh <persona> <message...>   # event log
 #   scripts/aiko-log.sh maid "issue #3 着手"
+#   scripts/aiko-log.sh --heartbeat              # 15-min rotation heartbeat (auto persona)
 #
 # persona: maid / aiko-dev / aiko-pr / hisyo ...
+# Rotation: slot = floor((now - 13:00 JST)/15min); persona = AGENTS[slot % 4].
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_FILE="$REPO_DIR/docs/aiko-log.md"
+AGENTS=(maid aiko-dev aiko-pr hisyo)
 
-if [[ $# -lt 2 ]]; then
-  echo "usage: $0 <persona> <message...>" >&2
+if [[ "${1:-}" == "--heartbeat" ]]; then
+  base=$(TZ='Asia/Tokyo' date -d 'today 13:00' +%s)
+  now=$(date +%s)
+  slot=$(( (now - base) / 900 ))
+  (( slot < 0 )) && slot=0
+  persona="${AGENTS[slot % 4]}"
+  last="$(cd "$REPO_DIR" && git log -1 --format='%s' 2>/dev/null || true)"
+  message="🫀 稼働中（直近: ${last}）"
+elif [[ $# -lt 2 ]]; then
+  echo "usage: $0 <persona> <message...>  |  $0 --heartbeat" >&2
   exit 1
+else
+  persona="$1"; shift
+  message="$*"
 fi
 
-persona="$1"; shift
-message="$*"
 ts="$(TZ='Asia/Tokyo' date '+%H:%M JST')"
 entry="- \`${ts}\` **[${persona}]** ${message}"
 
