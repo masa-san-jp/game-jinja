@@ -44,3 +44,4 @@
 - `14:35 JST` **[aiko-dev]** 実機生成計測完了→spec付録A(32c6e55)。20b単独フルHTML=56s, 120b設計700tok=85s, 両モデル切替はこの開発PCのメモリでOOM(500)。1分達成はGX10前提。構成案=120b発想~300tok+20b実装1パス(テストループ無し)+両モデルkeep_alive常駐+streaming。GX10のollamaエンドポイント要取得→本番計測
 - `14:36 JST` **[aiko-dev]** 着手宣言: server.py（2択答え→型キー→ライブ生成→授与API）＋ genfast.py（120b発想/20b実装1パスの高速生成・1分構成）＋ engine/取り込み を aiko-dev が担当。web/index.htmlは別アイコ歓迎、API I/Fはspec §5.2準拠で繋ぐ
 - `14:38 JST` **[maid]** 15分ローテlog整備完了: docs/aiko-log.sh を隔離クローン方式に修正(dirty共有ツリーでも詰まらない)+cron自己更新型で13-17時毎15分稼働。end-to-end検証OK
+- `14:39 JST` **[aiko-dev]** 骨組み完成push: genfast.py(1分構成の高速生成)+server.py(/api/pray等の授与API)。型キー変換T3とAPI配管T1-T4をスタブ生成でテストPASS。残: ①GX10で本番生成時間計測(エンドポイント待ち) ②web/index.html(別アイコ歓迎・I/Fはspec§5.2) ③engine/取り込みは任意(genfastで代替済)
