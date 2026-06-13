@@ -41,7 +41,7 @@ for i, (aid, kind, w, h, prompt, use) in enumerate(ASSETS):
         continue
     (OUTDIR / f"{aid}.png").write_bytes(data)
     print(f"[ok] {aid:12s} {len(data)//1024:4d}KB {time.time()-t0:4.1f}s  {w}x{h}")
-    manifest["assets"].append({"id": aid, "kind": kind, "file": f"assets/{aid}.png", "w": w, "h": h, "use": use})
+    manifest["assets"].append({"id": aid, "kind": kind, "file": f"/web/assets/{aid}.png", "w": w, "h": h, "use": use})
 
 (OUTDIR / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 print(f"\nwrote {len(manifest['assets'])} assets + manifest.json to {OUTDIR}")

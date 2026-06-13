@@ -1,8 +1,8 @@
 # ゲーム用 画像アセット — game-jinja
 
 「生成ゲームが地味」対策として、ローカル画像生成（ComfyUI / Qwen-Lightning）で事前生成した
-リッチな共通アセット。`web/assets/` に同梱、サーバが `/assets/<file>` で配信する。
-カタログは `web/assets/manifest.json`（機械可読）。
+リッチな共通アセット。`web/web/assets/` に同梱、サーバが `/web/assets/<file>` で配信する。
+カタログは `web/web/assets/manifest.json`（機械可読）。
 
 ## アセット一覧
 
@@ -23,8 +23,8 @@
 
 ```js
 // 事前ロード
-const bg = new Image(); bg.src = "/assets/bg_shrine.png";
-const orb = new Image(); orb.src = "/assets/orb_player.png";
+const bg = new Image(); bg.src = "/web/assets/bg_shrine.png";
+const orb = new Image(); orb.src = "/web/assets/orb_player.png";
 
 // 背景を敷く
 ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
@@ -56,8 +56,8 @@ ctx.globalCompositeOperation = "source-over";
 `build_brief` に以下を 1 行足し、`VISUAL_STYLE` の「画像を使わず」を「背景のみ画像可」に緩める:
 
 ```
-利用可能な背景画像（任意・1枚だけ背景に使ってよい）: /assets/bg_arcade.png, /assets/bg_shrine.png,
-/assets/bg_space.png, /assets/bg_forest.png。new Image() で読み、ctx.drawImage(bg,0,0,W,H) で背景に敷く。
+利用可能な背景画像（任意・1枚だけ背景に使ってよい）: /web/assets/bg_arcade.png, /web/assets/bg_shrine.png,
+/web/assets/bg_space.png, /web/assets/bg_forest.png。new Image() で読み、ctx.drawImage(bg,0,0,W,H) で背景に敷く。
 ゲーム本体（自機/敵/弾/エフェクト）は引き続き canvas 描画で表現する。
 ```
 
