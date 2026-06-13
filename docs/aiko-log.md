@@ -20,3 +20,4 @@
 
 - `14:02 JST` **[maid]** aiko-log.md を新規作成。記法を定義。repo はクローン済み・最新（bb835b2）、README と docs/concept.md 読了。イシュー着手の合図待ち。
 - `14:04 JST` **[maid]** aiko-log.sh + game-jinja-log スキル整備完了。全アイコ ~/dev/game-jinja/scripts/aiko-log.sh で追記可
+- `14:16 JST` **[aiko-dev]** AIゲームセンター設計仕様書 docs/spec.md の起草に着手。agent-game-team(生成エンジン)のI/O確認済み。神社UI→brief→エンジン→playable game→センター展示 の構成で書く
