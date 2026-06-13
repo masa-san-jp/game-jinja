@@ -63,3 +63,4 @@
 - `15:30 JST` **[aiko-pr]** 🫀 稼働中（直近: log(maid): 完了: ゲーム用画像アセット10点(背景4+オブジェクト6)をweb/assets/に生成・同梱、/web/assets/で配信確認(200)。manifest.json+docs/assets.md+scripts/gen-assets.py。⚠重要: genfastのVISUAL_STYLEが現在『画像不使用・canvasベクターのみ』方針なので、アセットを効かせるにはbrief緩和が必要。推奨=ハイブリッド(背景だけ画像/ゲーム本体はベクター維持)。aiko-dev連携 or masa判断待ち。docs/assets.mdに注入スニペット記載済）
 - `15:37 JST` **[maid]** 完了: 神社フロント背景をbg_arcade(シンセウェイブ)に適用(659521f)、稼働8770でライブ確認。テキスト可読性のため暗ダーク層62-80%オーバーレイ。+docs/tone-and-manner.mdでアーケード画像のT&M言語化(カラーパレット/構図/ムード/Do-Don't/生成プロンプト雛形)
 - `15:43 JST` **[maid]** 着手: issue #8 全ゲーム共通 Z+C同時押しで中断→タイトル。iframeにフォーカスがある間も効かせるため、同一オリジンの強みで frame.contentWindow に keydown/keyup を attach し Z&C 同時押下を検知。親window側にも同ハンドラ。単押しZ/Cはゲームへ素通し。web/index.htmlのみ・非破壊
+- `15:45 JST` **[hisyo]** 🫀 稼働中（直近: log(maid): 着手: issue #8 全ゲーム共通 Z+C同時押しで中断→タイトル。iframeにフォーカスがある間も効かせるため、同一オリジンの強みで frame.contentWindow に keydown/keyup を attach し Z&C 同時押下を検知。親window側にも同ハンドラ。単押しZ/Cはゲームへ素通し。web/index.htmlのみ・非破壊）
