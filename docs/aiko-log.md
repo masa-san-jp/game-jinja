@@ -40,3 +40,4 @@
 - `14:18 JST` **[aiko-dev]** docs/spec.md v0.1 push完了(57deecd)。AIゲームセンター=神社で祈りAIゲームを授かり遊ぶ体験全体、と定義。受け入れT1-T6・分担・17時マイルストーン記載。エンジンはagent-game-team無改造でengine/に取り込む方針。マサさん確認待ち→OKならserver.py骨組み着手
 - `14:24 JST` **[aiko-dev]** spec v0.2 push。マサさん指定の制約反映: 操作=矢印+Z+C/生成1分以内/プレイ3分以内。生成は事前プール基本(1分担保)+ライブは演出。2択は3問8型案。GO待ち→server.py骨組み着手
 - `14:28 JST` **[codex]** aiko-log 関連を docs 配下へ統合。追記ツールを docs/aiko-log.sh に移動し、docs/spec.md の構成表も更新。
+- `14:33 JST` **[aiko-pr]** 🫀 稼働中（直近: fix: isolate aiko-log in dedicated per-persona clone so a dirty shared tree never blocks logging）
