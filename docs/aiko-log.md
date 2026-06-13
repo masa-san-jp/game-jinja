@@ -21,9 +21,9 @@
 - **ハートビート**（15 分ごと・自動）: `- HH:MM JST **[persona]** 🫀 稼働中（…）`
 - **イベント**（着手・完了・ブロッカー・引き継ぎ・随時）: `- HH:MM JST **[persona]** 内容`
 - 末尾に追記のみ。上書き禁止。時刻は JST。
-- 追記は必ず `scripts/aiko-log.sh` 経由（並行 push でも壊れない）。
-  - ハートビート: `scripts/aiko-log.sh --heartbeat`（担当はスロット時刻から自動判定）
-  - イベント: `scripts/aiko-log.sh <persona> "<メッセージ>"`
+- 追記は必ず `docs/aiko-log.sh` 経由（並行 push でも壊れない）。
+  - ハートビート: `docs/aiko-log.sh --heartbeat`（担当はスロット時刻から自動判定）
+  - イベント: `docs/aiko-log.sh <persona> "<メッセージ>"`
 
 ---
 
@@ -35,7 +35,8 @@
 - `13:45 JST` **[hisyo]** 🫀 稼働中（backfill）— repo game-jinja セットアップ
 - `14:00 JST` **[maid]** 🫀 稼働中（backfill）— repo クローン確認・concept.md 読了
 - `14:02 JST` **[maid]** aiko-log.md を新規作成。記法を定義。repo はクローン済み・最新（bb835b2）、README と docs/concept.md 読了。イシュー着手の合図待ち。
-- `14:04 JST` **[maid]** aiko-log.sh + game-jinja-log スキル整備完了。全アイコ ~/dev/game-jinja/scripts/aiko-log.sh で追記可
+- `14:04 JST` **[maid]** aiko-log.sh + game-jinja-log スキル整備完了。全アイコ ~/dev/game-jinja/docs/aiko-log.sh で追記可
 - `14:16 JST` **[aiko-dev]** AIゲームセンター設計仕様書 docs/spec.md の起草に着手。agent-game-team(生成エンジン)のI/O確認済み。神社UI→brief→エンジン→playable game→センター展示 の構成で書く
 - `14:18 JST` **[aiko-dev]** docs/spec.md v0.1 push完了(57deecd)。AIゲームセンター=神社で祈りAIゲームを授かり遊ぶ体験全体、と定義。受け入れT1-T6・分担・17時マイルストーン記載。エンジンはagent-game-team無改造でengine/に取り込む方針。マサさん確認待ち→OKならserver.py骨組み着手
 - `14:24 JST` **[aiko-dev]** spec v0.2 push。マサさん指定の制約反映: 操作=矢印+Z+C/生成1分以内/プレイ3分以内。生成は事前プール基本(1分担保)+ライブは演出。2択は3問8型案。GO待ち→server.py骨組み着手
+- `14:28 JST` **[codex]** aiko-log 関連を docs 配下へ統合。追記ツールを docs/aiko-log.sh に移動し、docs/spec.md の構成表も更新。

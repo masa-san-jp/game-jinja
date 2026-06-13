@@ -119,12 +119,12 @@ DGX Spark ハッカソン 2026-06-13 / 本書が実装の SSOT（Single Source o
 ```
 game-jinja/
 ├── README.MD
-├── docs/{concept.md, spec.md(本書), aiko-log.md}
+├── docs/{concept.md, spec.md(本書), aiko-log.md, aiko-log.sh}
 ├── web/index.html          神社フロント（キー操作のみ）
 ├── server.py               神社サーバ（/api/pray ほか）
 ├── engine/                 agent-game-team 取り込み（無改造）
 ├── games/                  事前生成プール（型ごと・gitignore 可）
-└── scripts/aiko-log.sh
+└── scripts/              補助スクリプト置き場
 ```
 
 ## 8. 受け入れ条件（テスト・完成ゲート）

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# aiko-log.sh — append a time-stamped entry to docs/aiko-log.md and push.
+# aiko-log.sh — append a time-stamped entry to sibling aiko-log.md and push.
 # Safe for concurrent use by multiple Aiko agents: rebase + retry on push race.
 #
 # Usage:
-#   scripts/aiko-log.sh <persona> <message...>   # event log
-#   scripts/aiko-log.sh maid "issue #3 着手"
-#   scripts/aiko-log.sh --heartbeat              # 15-min rotation heartbeat (auto persona)
+#   docs/aiko-log.sh <persona> <message...>   # event log
+#   docs/aiko-log.sh maid "issue #3 着手"
+#   docs/aiko-log.sh --heartbeat              # 15-min rotation heartbeat (auto persona)
 #
 # persona: maid / aiko-dev / aiko-pr / hisyo ...
 # Rotation: slot = floor((now - 13:00 JST)/15min); persona = AGENTS[slot % 4].
