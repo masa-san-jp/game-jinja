@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゲーム神社</title>
+<style>
+  :root { --gold:#e8c66a; --red:#b03a2e; --ink:#f3ece0; --bg:#140d17; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(circle at 50% 20%, #2a1830 0%, var(--bg) 70%);
+    color: var(--ink); font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    overflow: hidden; user-select: none;
+  }
+  #app { height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .screen { display: none; width: 100%; max-width: 760px; padding: 32px; text-align: center; }
+  .screen.active { display: block; animation: fade .4s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+  h1 { font-size: clamp(40px, 9vw, 84px); color: var(--gold);
+       text-shadow: 0 0 24px rgba(232,198,106,.5); letter-spacing: .15em; }
+  .torii { font-size: clamp(80px, 18vw, 150px); line-height: 1; filter: drop-shadow(0 0 18px rgba(176,58,46,.6)); }
+  .hint { margin-top: 28px; color: #b9a98f; font-size: 15px; letter-spacing: .08em; }
+  .key { display:inline-block; border:1px solid var(--gold); border-radius:6px;
+         padding:1px 9px; margin:0 2px; color:var(--gold); font-size:14px; }
+  .q { font-size: clamp(22px, 5vw, 34px); margin-bottom: 40px; color: var(--ink); }
+  .choices { display: flex; gap: 24px; justify-content: center; }
+  .choice { flex: 1; max-width: 300px; padding: 30px 18px; border: 2px solid #5a4a3a;
+            border-radius: 16px; background: rgba(255,255,255,.03); font-size: clamp(18px,3.4vw,24px);
+            transition: all .15s; }
+  .choice.sel { border-color: var(--gold); background: rgba(232,198,106,.12);
+                box-shadow: 0 0 28px rgba(232,198,106,.3); transform: scale(1.04); color: var(--gold); }
+  .progress { margin-bottom: 26px; color: #8a7a64; letter-spacing: .3em; font-size: 14px; }
+  .pray-msg { font-size: clamp(20px, 4.6vw, 30px); line-height: 1.7; margin: 30px 0; color: var(--gold); }
+  .gauge { width: 70%; max-width: 380px; height: 14px; margin: 24px auto; border:1px solid var(--gold);
+           border-radius: 8px; overflow: hidden; background: rgba(0,0,0,.4); }
+  .gauge > i { display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--red),var(--gold));
+               transition: width .12s; }
+  .spinner { font-size: 60px; animation: spin 2s linear infinite; display:inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #frameWrap { position: fixed; inset: 0; background:#000; display:none; }
+  #frameWrap.active { display: block; }
+  #gameFrame { width: 100%; height: 100%; border: 0; }
+  #frameBar { position: fixed; top: 0; left: 0; right: 0; padding: 6px 14px; font-size: 13px;
+              color: var(--gold); background: rgba(0,0,0,.55); display: flex; justify-content: space-between; }
+  .err { color: #e88; }
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="s-title" class="screen active">
+    <div class="torii">⛩️</div>
+    <h1>ゲーム神社</h1>
+    <p class="hint">あなたの遊びを、AIが授ける神社。</p>
+    <p class="hint"><span class="key">Z</span> ゲームを始める</p>
+  </section>
+
+  <section id="s-quiz" class="screen">
+    <div class="progress" id="q-progress"></div>
+    <div class="q" id="q-text">…</div>
+    <div class="choices">
+      <div class="choice" id="c-a"></div>
+      <div class="choice" id="c-b"></div>
+    </div>
+    <p class="hint"><span class="key">←</span><span class="key">→</span> 選ぶ　<span class="key">Z</span> 決定　<span class="key">C</span> 戻る</p>
+  </section>
+
+  <section id="s-pray" class="screen">
+    <div class="torii">⛩️</div>
+    <p class="pray-msg">あなたが欲しいゲームを授けます。<br>祈ってください。</p>
+    <div class="gauge"><i id="pray-fill"></i></div>
+    <p class="hint"><span class="key">Z</span> を連打して祈る</p>
+  </section>
+
+  <section id="s-summon" class="screen">
+    <div class="spinner">⛩️</div>
+    <p class="pray-msg" id="summon-msg">神託を授かっています…</p>
+    <p class="hint" id="summon-sub">AI がその場でゲームを考えています</p>
+  </section>
+</div>
+
+<div id="frameWrap">
+  <div id="frameBar"><span id="frameTitle"></span><span><span class="key">C</span> 神社へ戻る</span></div>
+  <iframe id="gameFrame" title="game"></iframe>
+</div>
+
+<script>
+const SCREENS = ["title", "quiz", "pray", "summon"];
+let screen = "title";
+let questions = [];
+let qIndex = 0;
+let answers = [];
+let sel = "a";
+let prayCount = 0;
+const PRAY_TARGET = 8;
+
+function show(name) {
+  screen = name;
+  SCREENS.forEach(s => document.getElementById("s-" + s).classList.toggle("active", s === name));
+  document.getElementById("frameWrap").classList.remove("active");
+}
+
+async function loadQuestions() {
+  try {
+    const r = await fetch("/api/questions");
+    questions = (await r.json()).questions;
+  } catch (e) {
+    questions = [
+      { id: "tempo", a: "スピード重視", b: "じっくり考える" },
+      { id: "stance", a: "攻める（破壊・得点）", b: "避ける（生存）" },
+      { id: "goal", a: "一発勝負（タイムアタック）", b: "積み上げ（コンボ・スコア）" },
+    ];
+  }
+}
+
+function renderQuiz() {
+  const q = questions[qIndex];
+  document.getElementById("q-progress").textContent =
+    `問 ${qIndex + 1} / ${questions.length}`;
+  document.getElementById("q-text").textContent = "どちらの遊びが欲しい？";
+  document.getElementById("c-a").textContent = q.a;
+  document.getElementById("c-b").textContent = q.b;
+  sel = "a";
+  paintSel();
+}
+
+function paintSel() {
+  document.getElementById("c-a").classList.toggle("sel", sel === "a");
+  document.getElementById("c-b").classList.toggle("sel", sel === "b");
+}
+
+function startQuiz() {
+  qIndex = 0; answers = [];
+  show("quiz"); renderQuiz();
+}
+
+function answer() {
+  answers.push(sel);
+  qIndex++;
+  if (qIndex < questions.length) {
+    renderQuiz();
+  } else {
+    startPray();
+  }
+}
+
+function startPray() {
+  prayCount = 0;
+  document.getElementById("pray-fill").style.width = "0%";
+  show("pray");
+}
+
+function pray() {
+  prayCount++;
+  document.getElementById("pray-fill").style.width =
+    Math.min(100, (prayCount / PRAY_TARGET) * 100) + "%";
+  if (prayCount >= PRAY_TARGET) summon();
+}
+
+async function summon() {
+  show("summon");
+  let job;
+  try {
+    const r = await fetch("/api/pray", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers }),
+    });
+    job = (await r.json()).job_id;
+  } catch (e) {
+    return summonError("神様への祈りが届きませんでした");
+  }
+  const t0 = Date.now();
+  const poll = setInterval(async () => {
+    let s;
+    try { s = await (await fetch("/api/status/" + job)).json(); }
+    catch (e) { return; }
+    const sec = Math.floor((Date.now() - t0) / 1000);
+    document.getElementById("summon-sub").textContent =
+      `AI がその場でゲームを考えています… ${sec}秒`;
+    if (s.state === "done") {
+      clearInterval(poll);
+      playGame(s.game_id, s.title || "授かりもの");
+    } else if (s.state === "error") {
+      clearInterval(poll);
+      summonError("神託が降りませんでした");
+    }
+  }, 700);
+}
+
+function summonError(msg) {
+  document.getElementById("summon-msg").innerHTML = `<span class="err">${msg}</span>`;
+  document.getElementById("summon-sub").innerHTML =
+    '<span class="key">C</span> でもう一度参拝する';
+}
+
+function playGame(gameId, title) {
+  document.getElementById("frameTitle").textContent = "⛩️ " + title;
+  const frame = document.getElementById("gameFrame");
+  frame.src = "/games/" + gameId + "/index.html";
+  document.getElementById("frameWrap").classList.add("active");
+  setTimeout(() => frame.focus(), 100);
+}
+
+function backToTitle() {
+  document.getElementById("summon-msg").textContent = "神託を授かっています…";
+  show("title");
+}
+
+document.addEventListener("keydown", (e) => {
+  const k = e.key;
+  // ゲームプレイ中は C のみ拾い、他はゲームへ
+  if (document.getElementById("frameWrap").classList.contains("active")) {
+    if (k === "c" || k === "C") { document.getElementById("gameFrame").src = "about:blank"; backToTitle(); }
+    return;
+  }
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " ", "z", "Z", "c", "C"].includes(k))
+    e.preventDefault();
+
+  if (screen === "title") {
+    if (k === "z" || k === "Z") startQuiz();
+  } else if (screen === "quiz") {
+    if (k === "ArrowLeft") { sel = "a"; paintSel(); }
+    else if (k === "ArrowRight") { sel = "b"; paintSel(); }
+    else if (k === "z" || k === "Z") answer();
+    else if (k === "c" || k === "C") {
+      if (qIndex === 0) show("title");
+      else { qIndex--; answers.pop(); renderQuiz(); }
+    }
+  } else if (screen === "pray") {
+    if (k === "z" || k === "Z") pray();
+    else if (k === "c" || k === "C") startQuiz();
+  } else if (screen === "summon") {
+    if (k === "c" || k === "C") backToTitle();
+  }
+});
+
+loadQuestions();
+</script>
+</body>
+</html>
