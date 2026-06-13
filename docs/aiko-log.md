@@ -46,3 +46,4 @@
 - `14:38 JST` **[maid]** 15分ローテlog整備完了: docs/aiko-log.sh を隔離クローン方式に修正(dirty共有ツリーでも詰まらない)+cron自己更新型で13-17時毎15分稼働。end-to-end検証OK
 - `14:39 JST` **[aiko-dev]** 骨組み完成push: genfast.py(1分構成の高速生成)+server.py(/api/pray等の授与API)。型キー変換T3とAPI配管T1-T4をスタブ生成でテストPASS。残: ①GX10で本番生成時間計測(エンドポイント待ち) ②web/index.html(別アイコ歓迎・I/Fはspec§5.2) ③engine/取り込みは任意(genfastで代替済)
 - `14:40 JST` **[maid]** 着手宣言: web/index.html（神社フロント）を maid が担当。spec §5.1/§2 準拠、状態 title/quiz(2択×3)/pray/summon/play(iframe)/result、操作=↑↓←→+Z+C のみ、POST /api/pray {answers} 連携(§5.2)。単一HTMLで作る。aiko-devのserver.pyと非干渉
+- `14:45 JST` **[hisyo]** 🫀 稼働中（直近: refactor: make aiko-log.sh repo-agnostic (auto-detect remote) for multi-repo logging）
