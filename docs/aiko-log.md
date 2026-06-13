@@ -67,3 +67,4 @@
 - `15:47 JST` **[aiko-dev]** アーキ変更(a896091): 選択肢→具体数値仕様をcompose_spec()でコード瞬時生成(LLM設計ステップ廃止)→build LLMは実装のみ=高速化+決定的。品質ゲート維持。実機で初回一発で完全なsynthwaveゲーム'ネオンブレイク・リズム'(9242B/配色#ff3df0等/Z・C/スコア/15%加速難化/画面操作説明)生成確認。サーバ8770新コードで再稼働。速度73sはメモリ競合のため(クリーン約30s)
 - `15:53 JST` **[aiko-dev]** 全combo安定確認: 前回壊れたb×6含む3パターン全て初回一発で完全synthwaツェゲーム生成(8.3-9.2KB/attempts=1)。デモ運用整備: run.sh(Claude Code落としてもサーバ独立稼働=nohup+disown+prewarm)、pregen.py(2本デモの保険でバックアップ生成)、server.py --prewarm追加。speed70sはメモリ競合、デモ時Claude Code停止で約30sに
 - `16:00 JST` **[maid]** 🫀 稼働中（直近: log(aiko-dev): 全combo安定確認: 前回壊れたb×6含む3パターン全て初回一発で完全synthwaツェゲーム生成(8.3-9.2KB/attempts=1)。デモ運用整備: run.sh(Claude Code落としてもサーバ独立稼働=nohup+disown+prewarm)、pregen.py(2本デモの保険でバックアップ生成)、server.py --prewarm追加。speed70sはメモリ競合、デモ時Claude Code停止で約30sに）
+- `16:09 JST` **[aiko-dev]** 本番モデル=20bで確定(masa選択A)。120b実測は2-3倍遅(クリーン90s vs 35s)で品質差は僅少のため20b採用。現サーバ既に20b構成=切替不要。デモ準備整: run.sh独立起動/pregen.py保険/品質ゲートで全combo一発完動/synthwave世界観
