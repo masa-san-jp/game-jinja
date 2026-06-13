@@ -20,6 +20,7 @@ Env: PORT (default 8770), GEN_BUDGET_S (default 55), 他は genfast.py 参照。
 """
 import json
 import os
+import sys
 import threading
 import time
 from datetime import datetime
@@ -249,6 +250,9 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     GAMES.mkdir(exist_ok=True)
+    if "--prewarm" in sys.argv:
+        print("prewarming build model...")
+        genfast.prewarm()
     srv = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print(f"ゲーム神社 server on http://0.0.0.0:{PORT}  (ollama={genfast.OLLAMA})")
     srv.serve_forever()
