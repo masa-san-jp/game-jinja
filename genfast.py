@@ -81,7 +81,10 @@ BUILD_SYS = (
     "壊れる・消える・加速する瞬間に派手な視覚フィードバック（パーティクル/画面シェイク/フラッシュ/色変化）"
     "を必ず入れ、後ろから見ても楽しくする。スコアと残り時間/残機を画面に大きく出す。"
     "時間経過で必ず難しくする（加速・増殖）。説明文なしで遊べるUIにする。"
-    "出力は **完全な index.html のみ**（<!DOCTYPE html> から </html> まで）。"
+    "入力は必ず addEventListener('keydown', ...) で矢印キー(↑↓←→)と Z と C を処理する。"
+    "requestAnimationFrame でゲームループを回す。スコアと結果画面を必ず実装する。"
+    "コードを途中で省略したり『…』『以下省略』等で省かない。最後まで完全に書く。"
+    "出力は **完全な index.html のみ**（<!DOCTYPE html> から </html> まで・閉じタグ必須）。"
     "canvas + 素の JavaScript、外部ライブラリ禁止、1 ファイル完結。"
     "コードブロックや説明で囲まない、HTML だけを出力する。"
 )
@@ -131,6 +134,23 @@ def _extract_title(spec):
     return m.group(1).strip().strip("*# ") if m else "Game"
 
 
+def quality_issues(html):
+    """遊べないゲームを弾く最低ライン。問題のリストを返す（空なら合格）。"""
+    g = html.lower()
+    issues = []
+    if not g.startswith("<!doctype"):
+        issues.append("no-doctype")
+    if "</html>" not in g:
+        issues.append("truncated")               # 途中で切れた
+    if "addeventlistener" not in g and "onkeydown" not in g:
+        issues.append("no-input")                 # キー入力処理が無い＝操作不能
+    if "requestanimationframe" not in g and "setinterval" not in g:
+        issues.append("no-loop")                  # ゲームループが無い
+    if len(html) < 2500:
+        issues.append("too-small")                # 中身が薄い
+    return issues
+
+
 def _check_js(html):
     """node があれば JS 構文だけ確認。無ければ skip。"""
     js = "\n".join(re.findall(r"<script[^>]*>(.*?)</script>", html, re.S))
@@ -160,28 +180,28 @@ def build_brief(spec_axes, prayer=""):
     return "\n".join(lines)
 
 
-def generate(brief, design_tokens=1000, build_tokens=3500, do_fix=False):
-    """ライブ生成。dict を返す: {title, html, spec, t_design, t_build, syntax, elapsed}."""
+def generate(brief, design_tokens=1000, build_tokens=4000, max_build=3):
+    """ライブ生成。品質ゲートに通るまで build を最大 max_build 回まで作り直す。
+    dict を返す: {title, html, spec, t_design, t_build, syntax, issues, attempts, elapsed}."""
     t0 = time.time()
     t = time.time()
     spec = _chat(DESIGN_MODEL, DESIGN_SYS, brief + "\n短い game-spec を出力。", design_tokens)
     t_design = time.time() - t
 
+    user = f"game-spec:\n{spec}\n\n上記を満たす **完全に動く** index.html を出力。途中で省略しない。"
+    html, issues, attempts = "", ["init"], 0
     t = time.time()
-    html = _extract_html(_chat(
-        BUILD_MODEL, BUILD_SYS,
-        f"game-spec:\n{spec}\n\n上記を満たす完全な index.html を出力。", build_tokens))
+    while issues and attempts < max_build:
+        attempts += 1
+        html = _extract_html(_chat(BUILD_MODEL, BUILD_SYS, user, build_tokens))
+        issues = quality_issues(html)
+        if issues:
+            # 何が欠けているかを具体的に指摘して作り直させる
+            user = (f"game-spec:\n{spec}\n\n前回の出力に問題: {', '.join(issues)}。"
+                    "操作(矢印/Z/C)を addEventListener('keydown') で実装し、"
+                    "requestAnimationFrame のゲームループ、スコア/結果画面、難化を必ず入れ、"
+                    "<!DOCTYPE html> から </html> まで省略せず完全に出力する。")
     t_build = time.time() - t
-
-    syntax = _check_js(html)
-    if do_fix and syntax.startswith("error"):
-        t = time.time()
-        html = _extract_html(_chat(
-            BUILD_MODEL, BUILD_SYS,
-            f"game-spec:\n{spec}\n現在のindex.html:\n{html[:3000]}\n"
-            f"JS構文エラー: {syntax}\n修正した完全な index.html を出力。", build_tokens))
-        t_build += time.time() - t
-        syntax = _check_js(html)
 
     return {
         "title": _extract_title(spec),
@@ -189,7 +209,9 @@ def generate(brief, design_tokens=1000, build_tokens=3500, do_fix=False):
         "spec": spec,
         "t_design": round(t_design, 1),
         "t_build": round(t_build, 1),
-        "syntax": syntax,
+        "syntax": _check_js(html),
+        "issues": issues,
+        "attempts": attempts,
         "elapsed": round(time.time() - t0, 1),
     }
 

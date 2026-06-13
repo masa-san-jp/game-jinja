@@ -61,7 +61,7 @@
 <div id="app">
   <section id="s-title" class="screen active">
     <div class="torii">⛩️</div>
-    <h1>ゲーム神社</h1>
+    <h1>ゲーム<br>神社</h1>
     <p class="hint">あなたの遊びを、AIが授ける神社。</p>
     <p class="hint"><span class="key">Z</span> ゲームを始める　　<span class="key">↓</span> みんなのゲームを見る</p>
   </section>
@@ -78,7 +78,7 @@
 
   <section id="s-pray" class="screen">
     <div class="torii">⛩️</div>
-    <p class="pray-msg" id="pray-msg">あなたが欲しいゲームを授けます。<br>祈ってください。</p>
+    <p class="pray-msg" id="pray-msg">あなたが欲しいゲームを<br>授けます<br><br>祈ってください</p>
     <div class="gauge"><i id="pray-fill"></i></div>
     <p class="lap" id="pray-lap"></p>
     <p class="hint" id="pray-hint"><span class="key">Z</span> を連打して祈る</p>
@@ -169,7 +169,7 @@ function startPray() {
   document.getElementById("pray-fill").style.width = "0%";
   document.getElementById("pray-fill").style.background = LAP_COLORS[0];
   document.getElementById("pray-lap").textContent = "";
-  document.getElementById("pray-msg").innerHTML = "あなたが欲しいゲームを授けます。<br>祈ってください。";
+  document.getElementById("pray-msg").innerHTML = "あなたが欲しいゲームを<br>授けます<br><br>祈ってください";
   document.getElementById("pray-hint").innerHTML = '<span class="key">Z</span> を連打して祈る';
   show("pray");
   kickGeneration();
